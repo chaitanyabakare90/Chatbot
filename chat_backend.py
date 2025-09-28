@@ -6,7 +6,7 @@ from llama_index.core.prompts import PromptTemplate
 import os
 from dotenv import load_dotenv
 load_dotenv()
-gemini_api_key= os.getenv('gemini_api_key')
+gemini_api_key= st.secrets.gemini_api_key
 print(gemini_api_key)
 llm = GoogleGenAI(
     model="gemini-2.5-flash",
