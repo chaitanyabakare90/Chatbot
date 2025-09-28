@@ -4,6 +4,7 @@ from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.core.prompts import PromptTemplate
 import os
+import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
 gemini_api_key= st.secrets.gemini_api_key
