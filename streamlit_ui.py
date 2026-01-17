@@ -17,7 +17,7 @@ if prompt := st.chat_input("How can I help you?"):
     with st.chat_message("user"):
         st.markdown(prompt)
     # Add user message to chat history
-    history_chat= st.session_state.messages
+    history_chat= st.session_state.messages[-3:]
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     response = generate_respone(query=prompt, chat_history=history_chat)
