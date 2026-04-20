@@ -19,11 +19,14 @@ except:
 if not gemini_api_key:
     raise ValueError("API key not found. Set GEMINI_API_KEY in .env or Streamlit secrets.")
 
+# ✅ DEBUG: Verify API key is loading
+print(f"[DEBUG] API Key loaded: {gemini_api_key[:8]}...")
+
 # =========================
 # ✅ LLM SETUP
 # =========================
 llm = GoogleGenAI(
-    model="gemini-2.5-flash",
+    model="gemini-1.5-flash",  # ✅ stable and widely available
     api_key=gemini_api_key,
 )
 
@@ -33,7 +36,7 @@ llm = GoogleGenAI(
 temp_prompt = CustomPromptTemplate().MAIN_PROMPT
 
 # =========================
-# ✅ MAIN FUNCTION (FIXED)
+# ✅ MAIN FUNCTION
 # =========================
 def generate_response(query: str, chat_history: list) -> str:
     """Generate response using LLM safely."""
@@ -41,30 +44,30 @@ def generate_response(query: str, chat_history: list) -> str:
     if not query or not query.strip():
         return "Please enter a valid question."
 
-    # ✅ Format chat history as readable string for the prompt
+    # ✅ Format chat history as readable string
     formatted_history = ""
     for chat in chat_history[-5:]:
         formatted_history += f"User: {chat.get('user', '')}\nAssistant: {chat.get('assistant', '')}\n"
 
-    # ✅ Fill in the placeholders in the prompt template
+    # ✅ Fill placeholders in prompt template
     filled_system_prompt = temp_prompt.format(
         query=query,
         chat_history=formatted_history if formatted_history else "No previous conversation."
     )
 
-    # ✅ Build messages list with the filled prompt
+    # ✅ Build messages
     messages = [
         ChatMessage(role=MessageRole.SYSTEM, content=filled_system_prompt),
         ChatMessage(role=MessageRole.USER, content=query),
     ]
 
-    # 🔹 Retry logic
+    # ✅ Retry logic with detailed logging
     for attempt in range(3):
         try:
             response = llm.chat(messages)
             return response.message.content
         except Exception as e:
-            print(f"[ERROR] Attempt {attempt + 1}: {e}")
+            print(f"[ERROR] Attempt {attempt + 1} failed: {type(e).__name__}: {e}")
             time.sleep(2)
 
     return "AI service is temporarily unavailable. Please try again."
