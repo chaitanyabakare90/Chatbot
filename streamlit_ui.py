@@ -1,6 +1,6 @@
 import streamlit as st
 from chat_backend import generate_respone
-st.title("Agro_Share")
+st.title("FinAssist")
 
 # Initialize chat history
 if "messages" not in st.session_state:
