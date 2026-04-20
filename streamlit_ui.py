@@ -19,7 +19,7 @@ if prompt := st.chat_input("How can I help you?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # ✅ Build chat history in the format backend expects: {"user": ..., "assistant": ...}
+    # ✅ Build chat history in format backend expects: {"user": ..., "assistant": ...}
     formatted_history = []
     messages = st.session_state.messages
     for i in range(0, len(messages) - 1, 2):
