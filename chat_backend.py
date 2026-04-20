@@ -1,7 +1,6 @@
 from prompt_template import PromptTemplate as CustomPromptTemplate
 from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.core.llms import ChatMessage, MessageRole
-from llama_index.core.prompts import PromptTemplate
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -12,7 +11,6 @@ import time
 # =========================
 load_dotenv()
 
-# 👉 Works for both Streamlit Cloud + local
 try:
     gemini_api_key = st.secrets["gemini_api_key"]
 except:
@@ -25,7 +23,7 @@ if not gemini_api_key:
 # ✅ LLM SETUP
 # =========================
 llm = GoogleGenAI(
-    model="gemini-2.5-flash",   # ✅ changed (stable)
+    model="gemini-2.5-flash",
     api_key=gemini_api_key,
 )
 
@@ -33,54 +31,49 @@ llm = GoogleGenAI(
 # ✅ PROMPT
 # =========================
 temp_prompt = CustomPromptTemplate().MAIN_PROMPT
-chat_prompt_template = PromptTemplate(temp_prompt)
 
 # =========================
 # ✅ MAIN FUNCTION (FIXED)
 # =========================
-def generate_respone(query: str, chat_history: list) -> str:
+def generate_response(query: str, chat_history: list) -> str:
     """Generate response using LLM safely."""
 
-    # 🔹 Empty input
     if not query or not query.strip():
         return "Please enter a valid question."
 
-    # 🔹 Prepare messages
-    messages = []
-
-    # ✅ System prompt (VERY IMPORTANT)
-    messages.append(ChatMessage(role=MessageRole.SYSTEM, content=temp_prompt))
-
-    # 🔹 Add last 5 chat history
+    # ✅ Format chat history as readable string for the prompt
+    formatted_history = ""
     for chat in chat_history[-5:]:
-        messages.append(ChatMessage(role=MessageRole.USER, content=chat.get("user", "")))
-        messages.append(ChatMessage(role=MessageRole.ASSISTANT, content=chat.get("assistant", "")))
+        formatted_history += f"User: {chat.get('user', '')}\nAssistant: {chat.get('assistant', '')}\n"
 
-    # 🔹 Add current query
-    messages.append(ChatMessage(role=MessageRole.USER, content=query))
+    # ✅ Fill in the placeholders in the prompt template
+    filled_system_prompt = temp_prompt.format(
+        query=query,
+        chat_history=formatted_history if formatted_history else "No previous conversation."
+    )
+
+    # ✅ Build messages list with the filled prompt
+    messages = [
+        ChatMessage(role=MessageRole.SYSTEM, content=filled_system_prompt),
+        ChatMessage(role=MessageRole.USER, content=query),
+    ]
 
     # 🔹 Retry logic
     for attempt in range(3):
         try:
             response = llm.chat(messages)
             return response.message.content
-
         except Exception as e:
             print(f"[ERROR] Attempt {attempt + 1}: {e}")
             time.sleep(2)
 
-    # 🔹 Fallback
     return "AI service is temporarily unavailable. Please try again."
-
 
 # =========================
 # ✅ TEST
 # =========================
 if __name__ == "__main__":
     chat_history = []
-
-    # ✅ Use finance-related query
     query = "What is a credit score?"
-
-    response = generate_respone(query, chat_history)
+    response = generate_response(query, chat_history)
     print(response)
