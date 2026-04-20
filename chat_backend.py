@@ -9,7 +9,7 @@ load_dotenv()
 gemini_api_key = st.secrets["gemini_api_key"]
 
 llm = GoogleGenAI(
-    model="gemini-2.0-flash",  # Fixed: gemini-2.5-flash is not a valid model name
+    model="gemini-2.5-flash",  # Fixed: gemini-2.5-flash is not a valid model name
     api_key=gemini_api_key,
 )
 
