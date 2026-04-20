@@ -25,7 +25,7 @@ if not gemini_api_key:
 # ✅ LLM SETUP
 # =========================
 llm = GoogleGenAI(
-    model="gemini-1.5-flash",   # ✅ changed (stable)
+    model="gemini-2.5-flash",   # ✅ changed (stable)
     api_key=gemini_api_key,
 )
 
