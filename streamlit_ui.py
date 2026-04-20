@@ -1,6 +1,7 @@
 import streamlit as st
 from chat_backend import generate_respone
-st.title("FinAssist")
+
+st.title("FinAssist 💰")
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -13,17 +14,24 @@ for message in st.session_state.messages:
 
 # React to user input
 if prompt := st.chat_input("How can I help you?"):
-    # Display user message in chat message container
+
+    # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
-    # Add user message to chat history
-    history_chat= st.session_state.messages[-3:]
+
+    # Get last 3 exchanges (6 messages) BEFORE appending current message
+    history_chat = st.session_state.messages[-6:]
+
+    # Append user message to history
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    response = generate_respone(query=prompt, chat_history=history_chat)
-    response_str= f"Edu: {response}"
-    # Display assistant response in chat message container
+
+    # Generate response
+    with st.spinner("Thinking..."):
+        response = generate_respone(query=prompt, chat_history=history_chat)
+
+    # Display assistant response
     with st.chat_message("assistant"):
         st.markdown(response)
-    # Add assistant response to chat history
+
+    # Append assistant response to history
     st.session_state.messages.append({"role": "assistant", "content": response})
